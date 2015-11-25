@@ -1,12 +1,18 @@
-var canvas = document.getElementsByTagName('canvas')[0];
-canvas.width = 1024;
-canvas.height = 768;
+function main() {
+	var canvas = document.getElementById('canvas');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	console.log(generateVertices(5000,5000));
+}
 
 var height = 0;
 
-function generateVertices(var terrainWidth, var terrainHeight) {
+function generateVertices(terrainWidth, terrainLength) {
 
   var data = new Array(terrainWidth*terrainLength);
+  var seedNumber  = Math.floor((Math.random() * 10000));
+  noise.seed(seedNumber);
+  console.log(seedNumber);
 
   // For calculating the time diff
   var start = Date.now();
@@ -33,5 +39,6 @@ function generateVertices(var terrainWidth, var terrainHeight) {
 
   console.log('Vertices generated in ' + (end - start) + ' ms', 'range: ' + min + ' to ' + max);
 
-  height += 0.05;
+  height += 0.5;
+  return data;
 }

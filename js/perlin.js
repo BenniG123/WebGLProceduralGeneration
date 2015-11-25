@@ -76,7 +76,7 @@
     }
   };
 
-  module.seed(90);
+  module.seed(0);
 
   // Skewing and unskewing factors for 2, 3, and 4 dimensions
   var F2 = 0.5*(Math.sqrt(3)-1);
