@@ -7,8 +7,7 @@
     </head>
     <body>
         <canvas id="canvas">
-        Please use a browser that supports "canvas"
-        </canvas>
+        Please use a browser that supports "canvas"</canvas>
         <script src="../js/CPUGen.js"></script>
     </body>
 </html>
