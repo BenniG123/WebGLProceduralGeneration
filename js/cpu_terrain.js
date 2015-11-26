@@ -19,15 +19,15 @@ function init() {
 	document.body.appendChild( container );
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 4000 );
-	camera.position.z = 100;
-    camera.rotation.x = 90;
+	camera.position.z = 300;
+    camera.position.y = -45;
+    camera.rotation.x = .45;
 	scene = new THREE.Scene();
     scene.add(camera);
     // plane
-    var geometry = new THREE.PlaneGeometry(100,100,proceduralWidth,proceduralHeight);
+    var geometry = new THREE.PlaneGeometry(100,100,proceduralHeight-1,proceduralWidth-1);
     var material = new THREE.MeshLambertMaterial(0xff0000);
     plane = new THREE.Mesh( geometry, material );
-
      
     //set height of vertices
     for ( var i = 0; i<plane.geometry.vertices.length; i++ ) {
@@ -35,7 +35,7 @@ function init() {
     }
 
     var light = new THREE.PointLight( 0xffffff, 1, 500 );
-	light.position.set( 0, 0, 150 );
+	light.position.set( 0, 100, 500 );
 	scene.add( light );
  
     scene.add(plane);
