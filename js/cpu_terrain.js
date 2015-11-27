@@ -1,16 +1,19 @@
 var heightMap;
-var proceduralWidth = 100;
-var proceduralHeight = 100;
+var proceduralWidth = 200;
+var proceduralHeight = 200;
 var container;
 var renderer;
 var scene;
 var camera;
+var scalar = 150;
+var minHeight = 150;
+var maxHeight = Infinity;
 
 function main() {
 	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);
   
     init();
-    animate();
+    //animate();
    
 };
 
@@ -19,25 +22,39 @@ function init() {
 	document.body.appendChild( container );
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 4000 );
-	camera.position.z = 300;
-    camera.position.y = -45;
+	camera.position.z = 500;
+    camera.position.y = -200;
+    camera.position.x = 200;
     camera.rotation.x = .45;
+    camera.rotation.y = .45;
 	scene = new THREE.Scene();
     scene.add(camera);
     // plane
-    var geometry = new THREE.PlaneGeometry(100,100,proceduralHeight-1,proceduralWidth-1);
-    var material = new THREE.MeshLambertMaterial(0xff0000);
+    var geometry = new THREE.PlaneGeometry(proceduralWidth*4,proceduralHeight*4,proceduralWidth-1,proceduralHeight-1);
+    var material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
     plane = new THREE.Mesh( geometry, material );
      
     //set height of vertices
-    for ( var i = 0; i<plane.geometry.vertices.length; i++ ) {
-         plane.geometry.vertices[i].z = heightMap[i];
+    for ( var i = 0; i < plane.geometry.vertices.length; i++ ) {
+        plane.geometry.vertices[i].z = heightMap[i];
+    }
+    
+    for (var i = 0; i < plane.geometry.faces.length; i++) {
+        face = plane.geometry.faces[i];
+        // We want to color the terrain so that lower (water) is blue, middle is green and very high is brown
+        var red = (plane.geometry.vertices[face.a].z - scalar*.67 - minHeight)/(scalar);
+        var green = (plane.geometry.vertices[face.a].z - minHeight)/(scalar);
+        var blue = 1-(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
+        face.color.setRGB( red, green, blue);
     }
 
-    var light = new THREE.PointLight( 0xffffff, 1, 500 );
+    var light = new THREE.PointLight( 0xffffff, 1, 750 );
 	light.position.set( 0, 100, 500 );
 	scene.add( light );
- 
+    
+    plane.geometry.computeFaceNormals();
+    plane.geometry.computeVertexNormals();
+
     scene.add(plane);
 
 	renderer = new THREE.WebGLRenderer();
@@ -46,6 +63,7 @@ function init() {
 	container.appendChild( renderer.domElement );
 
 	window.addEventListener( 'resize', onWindowResize, false );
+    renderer.render( scene, camera );
 
 }
 
@@ -70,7 +88,8 @@ function generateHeightMap(terrainWidth, terrainLength) {
   var data = new Array(terrainWidth*terrainLength);
   // 137 80 78 71 13 10 26 10
 
-  var seedNumber  = Math.floor((Math.random() * 10000));
+  // Get a full possibility of every seed - 2^16
+  var seedNumber  = Math.floor((Math.random() * 65536));
   noise.seed(seedNumber);
   console.log(seedNumber);
 
@@ -84,11 +103,16 @@ function generateHeightMap(terrainWidth, terrainLength) {
     for (var y = 0; y < terrainLength; y++) {
       var value = noise.perlin3(x / 50, y / 50, 0);
 
+	  // Scale the value from 0 to max height
+      value = (1 + value) * scalar;
+      if (value < minHeight) {
+        value = minHeight;
+      } else if (value > maxHeight) {
+        value = maxHeight;
+      }
+
       if (max < value) max = value;
       if (min > value) min = value;
-
-	  // Scale the value from 0 to 255
-      value = (1 + value) * 1.1 * 128;
 
 	  //Put data into the heightmap
       data[x + y * terrainWidth] = value;
