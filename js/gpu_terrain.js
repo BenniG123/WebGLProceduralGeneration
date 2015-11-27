@@ -4,7 +4,8 @@ var container,
     camera, 
     mesh, 
     start = Date.now(),
-    fov = 30;
+    fov = 70;
+var ran = Math.random() * 1000;
 
 function main() {
     // grab the container from the DOM
@@ -30,7 +31,7 @@ function main() {
         uniforms: {
                 r: { 
                     type: "f", 
-                    value: Math.random() * 1000
+                    value: ran
                 }
             },
         vertexShader: document.getElementById( 'vertex_shader' ).textContent,
@@ -39,7 +40,7 @@ function main() {
 
     //material = new THREE.MeshNormalMaterial();
     
-    var geometry = new THREE.PlaneGeometry( 50, 50, 49, 49);
+    var geometry = new THREE.PlaneGeometry( 100, 100, 99, 99);
 
     // create a sphere and assign the material
     mesh = new THREE.Mesh( 
@@ -47,8 +48,18 @@ function main() {
         material 
     );
     scene.add( mesh );
+
+    var pointLight = new THREE.PointLight( 0xffffff, 1, 300 );
+    pointLight.position.set( 0, 0, 200 );
+    scene.add( pointLight );
+
     mesh.rotation.x = -45;
     mesh.rotation.z = 45;
+
+    //mesh.material = new THREE.MeshLambertMaterial();
+    //mesh.geometry.buffersNeedUpdate = true;
+    //mesh.geometry.uvsNeedUpdate = true;
+
 
     // create the renderer and attach it to the DOM
     renderer = new THREE.WebGLRenderer();
@@ -62,7 +73,7 @@ function main() {
 
 function render() {
 
-    // let there be light
+    ran = Math.random()*1000;
     renderer.render( scene, camera );
     requestAnimationFrame( render );
     

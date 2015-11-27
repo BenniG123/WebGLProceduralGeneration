@@ -8,16 +8,12 @@
     <body>
         <div id="container"></div>
         <script id="fragment_shader" type="x-shader/x-fragment">
-        varying vec2 vUv;
+        precision mediump float;
+        varying float vZ;
         varying float noise;
-
-        void main() {
-
-            // compose the colour using the UV coordinate
-            // and modulate it with the noise like ambient occlusion
-            vec3 color = vec3( vUv * ( noise ), .5 );
-            gl_FragColor = vec4( color.rgb, 1.0 );
-
+         
+        void main(void) {
+            gl_FragColor = vec4(vZ * 0.5 * noise - .8 , .25 + vZ * 0.5 * noise, .5 - (0.1 * vZ*noise), 1 );
         }
         </script>
         <script id="vertex_shader" type="x-shader/x-vertex">
@@ -125,21 +121,22 @@
             return t;
         }
 
-        varying vec2 vUv;
+        varying float vZ;
         varying float noise;
         uniform float r;
 
         void main() {
 
-            vUv = uv;
-
             // get a turbulent 3d noise using the normal, normal to high freq
             noise = 10.0 *  -.10 * turbulence( 0.5 * normal + r);
-            float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * r), vec3( 100.0 ) );
+            float b = 30.0 * pnoise( 0.05 * position + vec3( 2.0 * r), vec3( 100.0 ) );
             float displacement = - noise + b;
             
             // move the position along the normal and transform it
-            vec3 newPosition = position + normal * displacement;
+            vec3 newPosition = position + normal * displacement + vec3(0, 0, 5);
+
+            vZ = newPosition.z;
+
             gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
         }
