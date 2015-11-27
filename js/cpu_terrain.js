@@ -6,7 +6,7 @@ var renderer;
 var scene;
 var camera;
 var scalar = 150;
-var minHeight = 150;
+var minHeight = 100;
 var maxHeight = Infinity;
 
 function main() {
