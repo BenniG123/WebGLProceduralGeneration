@@ -4,9 +4,9 @@ var container,
     camera, 
     mesh, 
     start = Date.now(),
-    fov = 70;
+    fov = 30;
 
-function init() {
+function main() {
     // grab the container from the DOM
     container = document.getElementById( "container" );
     
@@ -46,7 +46,7 @@ function init() {
 
     render();
 
-} );
+}
 
 function render() {
 
