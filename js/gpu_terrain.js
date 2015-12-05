@@ -7,7 +7,10 @@ var container,
     fov = 70;
 var ran = Math.random() * 65536;
 var minHeight = 0;
-var maxHeight = 10;
+var maxHeight = 50;
+var scalar = 50;
+var proceduralWidth = 300;
+var proceduralLength = 300;
 
 function main() {
     // grab the container from the DOM
@@ -43,6 +46,10 @@ function main() {
 					type: "f",
 					value: minHeight
 				},
+				scalar: {
+					type: "f",
+					value: scalar
+				},
             },
         vertexShader: document.getElementById( 'vertex_shader' ).textContent,
         fragmentShader: document.getElementById( 'fragment_shader' ).textContent
@@ -50,7 +57,7 @@ function main() {
 
     //material = new THREE.MeshNormalMaterial();
     
-    var geometry = new THREE.PlaneGeometry( 100, 100, 99, 99);
+    var geometry = new THREE.PlaneGeometry( proceduralWidth, proceduralLength, proceduralWidth-1, proceduralLength-1);
 
     // create a sphere and assign the material
     mesh = new THREE.Mesh( 

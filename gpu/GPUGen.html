@@ -10,10 +10,15 @@
         <script id="fragment_shader" type="x-shader/x-fragment">
         precision mediump float;
         varying float vZ;
-        varying float noise;
+        varying float vMaxHeight;
+        varying float vMinHeight;
+		varying float vScalar;
          
         void main(void) {
-            gl_FragColor = vec4(vZ * 0.5 * noise - .8 , .25 + vZ * 0.5 * noise, .5 - (0.1 * vZ*noise), 1 );
+			float red = (vZ - vScalar*.67 - vMinHeight)/vScalar;
+			float green = (vZ - vMinHeight)/(vScalar);
+			float blue = 0.7 -(vZ - vMinHeight)/(vScalar);
+            gl_FragColor = vec4( red, green, blue, 1 );
         }
         </script>
         <script id="vertex_shader" type="x-shader/x-vertex">
@@ -122,20 +127,24 @@
         }
 
         varying float vZ;
-        varying float noise;
+        //varying float noise;
         uniform float r;
         uniform float maxHeight;
         uniform float minHeight;
+		varying float vMaxHeight;
+		varying float vMinHeight;
+		varying float vScalar;
+		uniform float scalar;
 
         void main() {
 
             // get a turbulent 3d noise using the normal, normal to high freq
-            noise = 10.0 *  -.10 * turbulence( 0.5 * normal + r);
-            float b = 30.0 * pnoise( 0.05 * position + vec3( 2.0 * r), vec3( 100.0 ) );
-            float displacement = - noise + b;
+            //noise = 10.0 *  -.10 * turbulence( 0.5 * normal + r);
+            float b = scalar * pnoise( 0.05 * position + vec3( 2.0 * r), vec3( 100.0 ) );
+            //float displacement = - noise + b;
             
             // move the position along the normal and transform it
-            vec3 newPosition = position + normal * displacement + vec3(0, 0, 5);
+            vec3 newPosition = position + normal * b + vec3(0, 0, 5);
 
             if (newPosition.z > maxHeight) {
                 newPosition.z = maxHeight;
@@ -144,6 +153,9 @@
             }
 
             vZ = newPosition.z;
+			vMaxHeight = maxHeight;
+			vMinHeight = minHeight;
+			vScalar = scalar;
 
             gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 
