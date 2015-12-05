@@ -5,7 +5,9 @@ var container,
     mesh, 
     start = Date.now(),
     fov = 70;
-var ran = Math.random() * 1000;
+var ran = Math.random() * 65536;
+var minHeight = 0;
+var maxHeight = 10;
 
 function main() {
     // grab the container from the DOM
@@ -32,7 +34,15 @@ function main() {
                 r: { 
                     type: "f", 
                     value: ran
-                }
+                },
+				maxHeight: {
+					type: "f",
+					value: maxHeight
+				},
+				minHeight: {
+					type: "f",
+					value: minHeight
+				},
             },
         vertexShader: document.getElementById( 'vertex_shader' ).textContent,
         fragmentShader: document.getElementById( 'fragment_shader' ).textContent

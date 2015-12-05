@@ -124,6 +124,8 @@
         varying float vZ;
         varying float noise;
         uniform float r;
+        uniform float maxHeight;
+        uniform float minHeight;
 
         void main() {
 
@@ -134,6 +136,12 @@
             
             // move the position along the normal and transform it
             vec3 newPosition = position + normal * displacement + vec3(0, 0, 5);
+
+            if (newPosition.z > maxHeight) {
+                newPosition.z = maxHeight;
+            } else if (newPosition.z < minHeight) {
+                newPosition.z = minHeight;
+            }
 
             vZ = newPosition.z;
 
