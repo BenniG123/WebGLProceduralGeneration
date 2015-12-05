@@ -1,13 +1,13 @@
 var heightMap;
-var proceduralWidth = 200;
-var proceduralHeight = 200;
+var proceduralWidth = 500;
+var proceduralHeight = 500;
 var container;
 var renderer;
 var scene;
 var camera;
 var scalar = 150;
 var minHeight = 100;
-var maxHeight = Infinity;
+var maxHeight = 400;
 
 function main() {
 	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);
@@ -30,8 +30,8 @@ function init() {
 	scene = new THREE.Scene();
     scene.add(camera);
     // plane
-    var geometry = new THREE.PlaneGeometry(proceduralWidth*4,proceduralHeight*4,proceduralWidth-1,proceduralHeight-1);
-    var material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
+    var geometry = new THREE.PlaneGeometry(proceduralWidth,proceduralHeight,proceduralWidth-1,proceduralHeight-1);
+    var material = new THREE.MeshBasicMaterial({vertexColors: THREE.FaceColors}); //
     plane = new THREE.Mesh( geometry, material );
      
     //set height of vertices
@@ -43,17 +43,19 @@ function init() {
         face = plane.geometry.faces[i];
         // We want to color the terrain so that lower (water) is blue, middle is green and very high is brown
         var red = (plane.geometry.vertices[face.a].z - scalar*.67 - minHeight)/(scalar);
-        var green = (plane.geometry.vertices[face.a].z - minHeight)/(scalar);
-        var blue = 1-(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
+        var green = 0.6*(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
+        var blue = 0.4 -(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
         face.color.setRGB( red, green, blue);
     }
 
-    var light = new THREE.PointLight( 0xffffff, 1, 750 );
+    /*
+	Lighting Calculations 
+	var light = new THREE.PointLight( 0xffffff, 1, 750 );
 	light.position.set( 0, 100, 500 );
 	scene.add( light );
     
     plane.geometry.computeFaceNormals();
-    plane.geometry.computeVertexNormals();
+    plane.geometry.computeVertexNormals();*/
 
     scene.add(plane);
 

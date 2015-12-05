@@ -16,8 +16,8 @@
          
         void main(void) {
 			float red = (vZ - vScalar*.67 - vMinHeight)/vScalar;
-			float green = (vZ - vMinHeight)/(vScalar);
-			float blue = 0.7 -(vZ - vMinHeight)/(vScalar);
+			float green = 0.6 * (vZ - vMinHeight)/(vScalar);
+			float blue = 0.5 -(vZ - vMinHeight)/(vScalar);
             gl_FragColor = vec4( red, green, blue, 1 );
         }
         </script>
