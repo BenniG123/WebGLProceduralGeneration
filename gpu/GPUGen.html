@@ -144,7 +144,7 @@
             //float displacement = - noise + b;
             
             // move the position along the normal and transform it
-            vec3 newPosition = position + normal * b + vec3(0, 0, 5);
+            vec3 newPosition = position + normal * b;
 
             if (newPosition.z > maxHeight) {
                 newPosition.z = maxHeight;

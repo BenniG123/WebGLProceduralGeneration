@@ -9,8 +9,8 @@ var ran = Math.random() * 65536;
 var minHeight = 0;
 var maxHeight = 50;
 var scalar = 50;
-var proceduralWidth = 100;
-var proceduralLength = 100;
+var proceduralWidth = 500;
+var proceduralLength = 500;
 
 function main() {
     // grab the container from the DOM
@@ -65,11 +65,7 @@ function main() {
         material 
     );
     scene.add( mesh );
-
-    var pointLight = new THREE.PointLight( 0xffffff, 1, 300 );
-    pointLight.position.set( 0, 0, 200 );
-    scene.add( pointLight );
-
+    
     mesh.rotation.x = -45;
     mesh.rotation.z = 45;
 
@@ -84,13 +80,16 @@ function main() {
     
     container.appendChild( renderer.domElement );
 
+    renderer.render( scene, camera );
+    var delta_time = Date.now() - start;
+    console.log("GPU: " + proceduralWidth + " x " + proceduralLength + " size heightmap in " + delta_time + " ms");
+
     render();
 
 }
 
 function render() {
 
-    ran = Math.random()*1000;
     renderer.render( scene, camera );
     requestAnimationFrame( render );
     
