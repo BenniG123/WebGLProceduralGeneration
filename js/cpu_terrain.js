@@ -22,13 +22,17 @@ function init() {
 	document.body.appendChild( container );
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 4000 );
-	camera.position.z = 500;
+    camera.position.z = 500;
     camera.position.y = -200;
     camera.position.x = 200;
     camera.rotation.x = .45;
     camera.rotation.y = .45;
-	scene = new THREE.Scene();
+    scene = new THREE.Scene();
     scene.add(camera);
+
+    //add gui
+    var gui = new DAT.GUI({height: 5 * 32 - 1});
+
     // plane
     var geometry = new THREE.PlaneGeometry(proceduralWidth,proceduralHeight,proceduralWidth-1,proceduralHeight-1);
     var material = new THREE.MeshBasicMaterial({vertexColors: THREE.FaceColors}); //
