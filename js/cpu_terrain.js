@@ -1,24 +1,22 @@
 var heightMap;
-var proceduralWidth = 100;
-var proceduralHeight = 100;
 var container;
 var renderer;
 var scene;
 var camera;
-var scalar = 150;
-var minHeight = 100;
-var maxHeight = 400;
 var start = Date.now();
 
+var parameters = {scalar: 150, minHeight: 100, maxHeight: 400, proceduralWidth: 300, proceduralHeight: 300};
+
 function main() {
-	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);
-    var gui = new dat.GUI({
-        height : 5 * 32 - 1
-    });
-  
-    init();
-    //animate();
-   
+	heightMap = generateHeightMap(parameters.proceduralWidth, parameters.proceduralHeight);
+    
+  init();
+
+  //animate();
+};
+
+function reloadPage(){
+  console.log("minHeight" + parameters.minHeight);
 };
 
 function init() {
@@ -34,8 +32,40 @@ function init() {
     scene = new THREE.Scene();
     scene.add(camera);
 
+    //GUI Components
+    var gui = new dat.GUI({
+        height : 5 * 32 - 1
+    });
+
+    gui.add(parameters, 'minHeight').min(-800).max(800).step(25).onFinishChange(function(newValue){
+      console.log("new minH val " + newValue);
+      console.log("minH " + parameters.minHeight);
+      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
+    });
+    gui.add(parameters, 'maxHeight').min(-800).max(800).step(25).onFinishChange(function(newValue){
+      console.log("new maxH val " + newValue);
+      console.log("maxH " + parameters.maxHeight);
+      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
+    });
+    gui.add(parameters, 'scalar').min(0).max(300).step(10).onFinishChange(function(newValue){
+      console.log("new scalar val " + newValue);
+      console.log("scalar " + parameters.scalar);
+      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
+    });
+    gui.add(parameters, 'proceduralWidth').min(100).max(1000).step(50).onFinishChange(function(newValue){
+      console.log("new width val " + newValue);
+      console.log("width " + parameters.proceduralWidth);
+      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
+    });    gui.add(parameters, 'proceduralHeight').min(100).max(1000).step(50).onFinishChange(function(newValue){
+      console.log("new height val " + newValue);
+      console.log("height " + parameters.proceduralHeight);
+      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
+    });
+
+    
+
     // plane
-    var geometry = new THREE.PlaneGeometry(proceduralWidth,proceduralHeight,proceduralWidth-1,proceduralHeight-1);
+    var geometry = new THREE.PlaneGeometry(parameters.proceduralWidth,parameters.proceduralHeight,parameters.proceduralWidth-1,parameters.proceduralHeight-1);
     var material = new THREE.MeshBasicMaterial({vertexColors: THREE.FaceColors}); //
     plane = new THREE.Mesh( geometry, material );
      
@@ -47,9 +77,9 @@ function init() {
     for (var i = 0; i < plane.geometry.faces.length; i++) {
         face = plane.geometry.faces[i];
         // We want to color the terrain so that lower (water) is blue, middle is green and very high is brown
-        var red = (plane.geometry.vertices[face.a].z - scalar*.67 - minHeight)/(scalar);
-        var green = 0.6*(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
-        var blue = 0.4 -(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
+        var red = (plane.geometry.vertices[face.a].z - parameters.scalar*.67 - parameters.minHeight)/(parameters.scalar);
+        var green = 0.6*(plane.geometry.vertices[face.a].z - parameters.minHeight)/(parameters.scalar);
+        var blue = 0.4 -(plane.geometry.vertices[face.a].z - parameters.minHeight)/(parameters.scalar);
         face.color.setRGB( red, green, blue);
     }
 
@@ -73,7 +103,7 @@ function init() {
     
     renderer.render( scene, camera );
     var delta_time = Date.now() - start;
-    console.log("CPU: " + proceduralWidth + " x " + proceduralHeight + " size heightmap in " + delta_time + " ms");
+    console.log("CPU: " + parameters.proceduralWidth + " x " + parameters.proceduralHeight + " size heightmap in " + delta_time + " ms");
 
 }
 
@@ -110,11 +140,11 @@ function generateHeightMap(terrainWidth, terrainLength) {
       var value = noise.perlin3(x / 50, y / 50, 0);
 
 	  // Scale the value from 0 to max height
-      value = (1 + value) * scalar;
-      if (value < minHeight) {
-        value = minHeight;
-      } else if (value > maxHeight) {
-        value = maxHeight;
+      value = (1 + value) * parameters.scalar;
+      if (value < parameters.minHeight) {
+        value = parameters.minHeight;
+      } else if (value > parameters.maxHeight) {
+        value = parameters.maxHeight;
       }
 
       if (max < value) max = value;
