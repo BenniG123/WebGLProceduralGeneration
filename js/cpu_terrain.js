@@ -1,6 +1,6 @@
 var heightMap;
-var proceduralWidth = 500;
-var proceduralHeight = 500;
+var proceduralWidth = 100;
+var proceduralHeight = 100;
 var container;
 var renderer;
 var scene;
@@ -8,6 +8,7 @@ var camera;
 var scalar = 150;
 var minHeight = 100;
 var maxHeight = 400;
+var start = Date.now();
 
 function main() {
 	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);
@@ -65,7 +66,10 @@ function init() {
 	container.appendChild( renderer.domElement );
 
 	window.addEventListener( 'resize', onWindowResize, false );
+    
     renderer.render( scene, camera );
+    var delta_time = Date.now() - start;
+    console.log("CPU: " + proceduralWidth + " x " + proceduralHeight + " size heightmap in " + delta_time + " ms");
 
 }
 
@@ -93,10 +97,6 @@ function generateHeightMap(terrainWidth, terrainLength) {
   // Get a full possibility of every seed - 2^16
   var seedNumber  = Math.floor((Math.random() * 65536));
   noise.seed(seedNumber);
-  console.log(seedNumber);
-
-  // For calculating the time diff
-  var start = Date.now();
 
   var max = -Infinity, min = Infinity;
 
@@ -120,10 +120,6 @@ function generateHeightMap(terrainWidth, terrainLength) {
       data[x + y * terrainWidth] = value;
     }
   }
-
-  var end = Date.now();
-
-  console.log(terrainWidth*terrainLength + ' vertices generated in ' + (end - start) + ' ms', 'range: ' + min + ' to ' + max);
 
   return data;
 }
