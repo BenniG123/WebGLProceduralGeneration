@@ -12,6 +12,9 @@ var start = Date.now();
 
 function main() {
 	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);
+    var gui = new dat.GUI({
+        height : 5 * 32 - 1
+    });
   
     init();
     //animate();
@@ -30,9 +33,6 @@ function init() {
     camera.rotation.y = .45;
     scene = new THREE.Scene();
     scene.add(camera);
-
-    //add gui
-    var gui = new DAT.GUI({height: 5 * 32 - 1});
 
     // plane
     var geometry = new THREE.PlaneGeometry(proceduralWidth,proceduralHeight,proceduralWidth-1,proceduralHeight-1);

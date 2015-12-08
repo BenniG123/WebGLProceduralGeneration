@@ -9,8 +9,8 @@ var ran = Math.random() * 65536;
 var minHeight = 0;
 var maxHeight = 50;
 var scalar = 50;
-var proceduralWidth = 500;
-var proceduralLength = 500;
+var proceduralWidth = 100;
+var proceduralLength = 100;
 
 function main() {
     // grab the container from the DOM
