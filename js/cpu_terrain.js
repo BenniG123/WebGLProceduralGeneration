@@ -1,17 +1,20 @@
 var heightMap;
-var proceduralWidth = 100;
-var proceduralHeight = 100;
+var proceduralWidth = 200;
+var proceduralHeight = 200;
 var container;
 var renderer;
 var scene;
 var camera;
-var scalar = 150;
-var minHeight = 100;
-var maxHeight = 400;
-var start = Date.now();
+var scalar = 100;
+var minHeight = 50;
+var maxHeight = 150;
 
 function main() {
-	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);
+    var start = Date.now();
+	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);    
+    var delta_time = Date.now() - start;
+    console.log("CPU: " + proceduralWidth + " x " + proceduralHeight + " size heightmap in " + delta_time + " ms");
+
     var gui = new dat.GUI({
         height : 5 * 32 - 1
     });
@@ -26,17 +29,14 @@ function init() {
 	document.body.appendChild( container );
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 4000 );
-    camera.position.z = 500;
-    camera.position.y = -200;
-    camera.position.x = 200;
-    camera.rotation.x = .45;
-    camera.rotation.y = .45;
+    camera.position.z = 100;
+    camera.target = new THREE.Vector3( 0, 0, 0 );
     scene = new THREE.Scene();
     scene.add(camera);
 
     // plane
     var geometry = new THREE.PlaneGeometry(proceduralWidth,proceduralHeight,proceduralWidth-1,proceduralHeight-1);
-    var material = new THREE.MeshBasicMaterial({vertexColors: THREE.FaceColors}); //
+    var material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors}); //
     plane = new THREE.Mesh( geometry, material );
      
     //set height of vertices
@@ -52,15 +52,18 @@ function init() {
         var blue = 0.4 -(plane.geometry.vertices[face.a].z - minHeight)/(scalar);
         face.color.setRGB( red, green, blue);
     }
+    
+    plane.rotation.x = -45;
+    plane.rotation.z = 45;
 
-    /*
-	Lighting Calculations 
+    
+	// Lighting Calculations 
 	var light = new THREE.PointLight( 0xffffff, 1, 750 );
-	light.position.set( 0, 100, 500 );
+	light.position.set( 0, 0, 500 );
 	scene.add( light );
     
     plane.geometry.computeFaceNormals();
-    plane.geometry.computeVertexNormals();*/
+    plane.geometry.computeVertexNormals();
 
     scene.add(plane);
 
@@ -72,8 +75,6 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize, false );
     
     renderer.render( scene, camera );
-    var delta_time = Date.now() - start;
-    console.log("CPU: " + proceduralWidth + " x " + proceduralHeight + " size heightmap in " + delta_time + " ms");
 
 }
 
@@ -110,7 +111,7 @@ function generateHeightMap(terrainWidth, terrainLength) {
       var value = noise.perlin3(x / 50, y / 50, 0);
 
 	  // Scale the value from 0 to max height
-      value = (1 + value) * scalar;
+      value = value * scalar;
       if (value < minHeight) {
         value = minHeight;
       } else if (value > maxHeight) {
