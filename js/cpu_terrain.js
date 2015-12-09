@@ -3,33 +3,71 @@ var container;
 var renderer;
 var scene;
 var camera;
+var geometry;
+var material;
+var plane;
 
-var parameters = {scalar: 150, minHeight: 100, maxHeight: 400, proceduralWidth: 300, proceduralHeight: 300};
+var parameters = {scalar: 150, minHeight: 100, maxHeight: 400, proceduralWidth: 100, proceduralHeight: 100};
 
 function main() {
-    var start = Date.now();
-	heightMap = generateHeightMap(proceduralWidth, proceduralHeight);    
-    var delta_time = Date.now() - start;
-    console.log("CPU: " + proceduralWidth + " x " + proceduralHeight + " size heightmap in " + delta_time + " ms");
+    
+	heightMap = generateHeightMap(parameters.proceduralWidth, parameters.proceduralHeight);
 
     var gui = new dat.GUI({
         height : 5 * 32 - 1
     });
   
     init();
-    //animate();
+    animate();
 };
 
 function reloadPage(){
   console.log("minHeight" + parameters.minHeight);
 };
 
+function regenerate_terrain() {
+
+    if (plane instanceof THREE.Mesh) {
+        scene.remove(plane);
+    }
+
+    geometry = new THREE.PlaneGeometry(parameters.proceduralWidth,parameters.proceduralHeight,parameters.proceduralWidth-1,parameters.proceduralHeight-1);
+    material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
+    plane = new THREE.Mesh( geometry, material );
+     
+    //set height of vertices
+    for ( var i = 0; i < plane.geometry.vertices.length; i++ ) {
+      value = (heightMap[i] + 1) * parameters.scalar;
+      if (value < parameters.minHeight) {
+        value = parameters.minHeight;
+      } else if (value > parameters.maxHeight) {
+        value = parameters.maxHeight;
+      }
+      plane.geometry.vertices[i].z = value;
+    }
+    
+    for (var i = 0; i < plane.geometry.faces.length; i++) {
+        face = plane.geometry.faces[i];
+        // We want to color the terrain so that lower (water) is blue, middle is green and very high is brown
+        var red = (plane.geometry.vertices[face.a].z - parameters.scalar*.67 - parameters.minHeight)/(parameters.scalar);
+        var green = 0.6*(plane.geometry.vertices[face.a].z - parameters.minHeight)/(parameters.scalar);
+        var blue = 0.4 -(plane.geometry.vertices[face.a].z - parameters.minHeight)/(parameters.scalar);
+        face.color.setRGB( red, green, blue);
+    }
+
+    plane.geometry.computeFaceNormals();
+    plane.geometry.computeVertexNormals();
+
+    scene.add(plane);
+}
+
 function init() {
 	container = document.createElement( 'div' );
 	document.body.appendChild( container );
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 4000 );
-    camera.position.z = 100;
+    camera.position.z = 300;
+    //camera.position.x = 400;
     camera.target = new THREE.Vector3( 0, 0, 0 );
     scene = new THREE.Scene();
     scene.add(camera);
@@ -63,38 +101,13 @@ function init() {
       console.log("height " + parameters.proceduralHeight);
       //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
-
     
-    var geometry = new THREE.PlaneGeometry(parameters.proceduralWidth,parameters.proceduralHeight,parameters.proceduralWidth-1,parameters.proceduralHeight-1);
-    var material = new THREE.MeshLambertMaterial({vertexColors: THREE.FaceColors});
-    plane = new THREE.Mesh( geometry, material );
-     
-    //set height of vertices
-    for ( var i = 0; i < plane.geometry.vertices.length; i++ ) {
-        plane.geometry.vertices[i].z = heightMap[i];
-    }
-    
-    for (var i = 0; i < plane.geometry.faces.length; i++) {
-        face = plane.geometry.faces[i];
-        // We want to color the terrain so that lower (water) is blue, middle is green and very high is brown
-        var red = (plane.geometry.vertices[face.a].z - parameters.scalar*.67 - parameters.minHeight)/(parameters.scalar);
-        var green = 0.6*(plane.geometry.vertices[face.a].z - parameters.minHeight)/(parameters.scalar);
-        var blue = 0.4 -(plane.geometry.vertices[face.a].z - parameters.minHeight)/(parameters.scalar);
-        face.color.setRGB( red, green, blue);
-    }
-    
-    plane.rotation.x = -45;
-    plane.rotation.z = 45;
-    
-	// Lighting Calculations 
+	// Setup Light 
 	var light = new THREE.PointLight( 0xffffff, 1, 750 );
-	light.position.set( 0, 0, 500 );
+	light.position.set( 0, 0, 300 );
 	scene.add( light );
-    
-    plane.geometry.computeFaceNormals();
-    plane.geometry.computeVertexNormals();
-
-    scene.add(plane);
+        
+    regenerate_terrain();
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
@@ -123,6 +136,8 @@ function animate() {
 }
 
 function generateHeightMap(terrainWidth, terrainLength) {
+
+  var start = Date.now();
   
   var data = new Array(terrainWidth*terrainLength);
   // 137 80 78 71 13 10 26 10
@@ -138,14 +153,6 @@ function generateHeightMap(terrainWidth, terrainLength) {
     for (var y = 0; y < terrainLength; y++) {
       var value = noise.perlin3(x / 50, y / 50, 0);
 
-	  // Scale the value from 0 to max height
-      value = value * scalar;
-      if (value < minHeight) {
-        value = minHeight;
-      } else if (value > maxHeight) {
-        value = maxHeight;
-      }
-
       if (max < value) max = value;
       if (min > value) min = value;
 
@@ -153,6 +160,9 @@ function generateHeightMap(terrainWidth, terrainLength) {
       data[x + y * terrainWidth] = value;
     }
   }
+
+  var delta_time = Date.now() - start;
+  console.log("CPU: " + parameters.proceduralWidth + " x " + parameters.proceduralHeight + " size heightmap in " + delta_time + " ms");
 
   return data;
 }
