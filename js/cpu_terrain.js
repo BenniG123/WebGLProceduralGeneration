@@ -11,15 +11,18 @@ var parameters = {scalar: 150, minHeight: 100, maxHeight: 400, proceduralWidth: 
 
 function main() {
     
+    seed();
 	heightMap = generateHeightMap(parameters.proceduralWidth, parameters.proceduralHeight);
-
-    var gui = new dat.GUI({
-        height : 5 * 32 - 1
-    });
   
     init();
     animate();
 };
+
+function seed() {
+  // Get a full possibility of every seed - 2^16
+  var seedNumber  = Math.floor((Math.random() * 65536));
+  noise.seed(seedNumber);
+}
 
 function reloadPage(){
   console.log("minHeight" + parameters.minHeight);
@@ -77,35 +80,28 @@ function init() {
         height : 5 * 32 - 1
     });
 
-    gui.add(parameters, 'minHeight').min(-800).max(800).step(25).onFinishChange(function(newValue){
-      console.log("new minH val " + newValue);
-      console.log("minH " + parameters.minHeight);
+    gui.add(parameters, 'minHeight').min(0).max(1000).step(10).onFinishChange(function(newValue) {
       regenerate_terrain();
-      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
-    gui.add(parameters, 'maxHeight').min(-800).max(800).step(25).onFinishChange(function(newValue){
-      console.log("new maxH val " + newValue);
-      console.log("maxH " + parameters.maxHeight);
+    gui.add(parameters, 'maxHeight').min(0).max(1000).step(10).onFinishChange(function(newValue) {
       regenerate_terrain();
-      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
-    gui.add(parameters, 'scalar').min(0).max(300).step(10).onFinishChange(function(newValue){
-      console.log("new scalar val " + newValue);
-      console.log("scalar " + parameters.scalar);
+    gui.add(parameters, 'scalar').min(0).max(500).step(10).onFinishChange(function(newValue) {
       regenerate_terrain();
-      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
-    gui.add(parameters, 'proceduralWidth').min(100).max(1000).step(50).onFinishChange(function(newValue){
-      console.log("new width val " + newValue);
-      console.log("width " + parameters.proceduralWidth);
+    gui.add(parameters, 'proceduralWidth').min(10).max(1000).step(10).onFinishChange(function(newValue) {
+      heightMap = generateHeightMap(parameters.proceduralWidth, parameters.proceduralHeight);
       regenerate_terrain();
-      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
-    });    gui.add(parameters, 'proceduralHeight').min(100).max(1000).step(50).onFinishChange(function(newValue){
-      console.log("new height val " + newValue);
-      console.log("height " + parameters.proceduralHeight);
+    });    gui.add(parameters, 'proceduralHeight').min(10).max(1000).step(10).onFinishChange(function(newValue) {
+      heightMap = generateHeightMap(parameters.proceduralWidth, parameters.proceduralHeight);
       regenerate_terrain();
-      //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
+    
+    var reseed_button = { reseed:function(){ 
+        seed();
+        regenerate_terrain();}};
+    gui.add(reseed_button,'reseed');
+
     
 	// Setup Light 
 	var light = new THREE.PointLight( 0xffffff, 1, 750 );
@@ -145,18 +141,12 @@ function generateHeightMap(terrainWidth, terrainLength) {
   var start = Date.now();
   
   var data = new Array(terrainWidth*terrainLength);
-  // 137 80 78 71 13 10 26 10
-
-  // Get a full possibility of every seed - 2^16
-  var seedNumber  = Math.floor((Math.random() * 65536));
-  noise.seed(seedNumber);
-
   var max = -Infinity, min = Infinity;
 
   // Calculate the Z value for every X and Y in the frame
   for (var x = 0; x < terrainWidth; x++) {
     for (var y = 0; y < terrainLength; y++) {
-      var value = noise.perlin3(x / 50, y / 50, 0);
+      var value = noise.perlin3(x/50, y/50, 0);
 
       if (max < value) max = value;
       if (min > value) min = value;
