@@ -80,25 +80,30 @@ function init() {
     gui.add(parameters, 'minHeight').min(-800).max(800).step(25).onFinishChange(function(newValue){
       console.log("new minH val " + newValue);
       console.log("minH " + parameters.minHeight);
+      regenerate_terrain();
       //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
     gui.add(parameters, 'maxHeight').min(-800).max(800).step(25).onFinishChange(function(newValue){
       console.log("new maxH val " + newValue);
       console.log("maxH " + parameters.maxHeight);
+      regenerate_terrain();
       //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
     gui.add(parameters, 'scalar').min(0).max(300).step(10).onFinishChange(function(newValue){
       console.log("new scalar val " + newValue);
       console.log("scalar " + parameters.scalar);
+      regenerate_terrain();
       //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
     gui.add(parameters, 'proceduralWidth').min(100).max(1000).step(50).onFinishChange(function(newValue){
       console.log("new width val " + newValue);
       console.log("width " + parameters.proceduralWidth);
+      regenerate_terrain();
       //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });    gui.add(parameters, 'proceduralHeight').min(100).max(1000).step(50).onFinishChange(function(newValue){
       console.log("new height val " + newValue);
       console.log("height " + parameters.proceduralHeight);
+      regenerate_terrain();
       //location.reload(); //This is not working when added - doesn't hold the values that were just set everything gets reset to default
     });
     
