@@ -6,8 +6,10 @@ var camera;
 var geometry;
 var material;
 var plane;
+var rotation_x = 0;
+var rotation_z = 0;
 
-var parameters = {scalar: 150, minHeight: 100, maxHeight: 400, proceduralWidth: 100, proceduralHeight: 100};
+var parameters = {scalar: 130, minHeight: 100, maxHeight: 400, proceduralWidth: 250, proceduralHeight: 250};
 
 function main() {
     
@@ -69,7 +71,7 @@ function init() {
 	document.body.appendChild( container );
 
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 4000 );
-    camera.position.z = 300;
+    camera.position.z = 600;
     //camera.position.x = 400;
     camera.target = new THREE.Vector3( 0, 0, 0 );
     scene = new THREE.Scene();
@@ -97,9 +99,15 @@ function init() {
       regenerate_terrain();
     });
     
-    var reseed_button = { reseed:function(){ 
-        seed();
-        regenerate_terrain();}};
+    var reseed_button = {
+	    reseed: function() {
+        	seed();
+			heightMap = generateHeightMap(parameters.proceduralWidth, parameters.proceduralHeight);
+        	regenerate_terrain();
+		}
+	};
+
+	//var btn = new reseed_button();
     gui.add(reseed_button,'reseed');
 
     
@@ -116,8 +124,27 @@ function init() {
 	container.appendChild( renderer.domElement );
 
 	window.addEventListener( 'resize', onWindowResize, false );
-    
+    window.addEventListener( "keypress", doKeyDown, false )
     renderer.render( scene, camera );
+}
+
+function doKeyDown(e) {
+
+	if ( e.keyCode == 119 ) {
+		rotation_x -= .06;
+	}
+
+	if ( e.keyCode == 115 ) {		
+		rotation_x += .06;
+	}
+
+	if ( e.keyCode == 100 ) {		
+		rotation_z += .06;
+	}
+
+	if ( e.keyCode == 97 ) {		
+		rotation_z -= .06;
+	}
 }
 
 function onWindowResize() {
@@ -133,6 +160,9 @@ function onWindowResize() {
 function animate() {
 
 	requestAnimationFrame( animate );
+	plane.rotation.x = rotation_x;	
+	plane.rotation.z = rotation_z;
+
 	renderer.render( scene, camera );
 }
 
@@ -146,8 +176,8 @@ function generateHeightMap(terrainWidth, terrainLength) {
   // Calculate the Z value for every X and Y in the frame
   for (var x = 0; x < terrainWidth; x++) {
     for (var y = 0; y < terrainLength; y++) {
-      var value = noise.perlin3(x/50, y/50, 0);
-
+      var value = noise.perlin3(x/50, y/50, 0) + .1 * noise.perlin3(x/500, y/500, 0) + + .1 * noise.perlin3(x/200, y/200, 0);
+      value += .02 * Math.random();
       if (max < value) max = value;
       if (min > value) min = value;
 
