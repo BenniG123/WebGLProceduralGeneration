@@ -9,7 +9,7 @@ var plane;
 var rotation_x = 0;
 var rotation_z = 0;
 
-var parameters = {scalar: 130, minHeight: 100, maxHeight: 400, proceduralWidth: 250, proceduralHeight: 250};
+var parameters = {scalar: 130, minHeight: 0, maxHeight: 400, proceduralWidth: 250, proceduralHeight: 250};
 
 function main() {
     
@@ -42,7 +42,7 @@ function regenerate_terrain() {
      
     //set height of vertices
     for ( var i = 0; i < plane.geometry.vertices.length; i++ ) {
-      value = (heightMap[i] + 1) * parameters.scalar;
+      value = heightMap[i] * parameters.scalar;
       if (value < parameters.minHeight) {
         value = parameters.minHeight;
       } else if (value > parameters.maxHeight) {
@@ -82,10 +82,10 @@ function init() {
         height : 5 * 32 - 1
     });
 
-    gui.add(parameters, 'minHeight').min(0).max(1000).step(10).onFinishChange(function(newValue) {
+    gui.add(parameters, 'minHeight').min(-1000).max(1000).step(50).onFinishChange(function(newValue) {
       regenerate_terrain();
     });
-    gui.add(parameters, 'maxHeight').min(0).max(1000).step(10).onFinishChange(function(newValue) {
+    gui.add(parameters, 'maxHeight').min(-1000).max(1000).step(50).onFinishChange(function(newValue) {
       regenerate_terrain();
     });
     gui.add(parameters, 'scalar').min(0).max(500).step(10).onFinishChange(function(newValue) {
@@ -176,7 +176,7 @@ function generateHeightMap(terrainWidth, terrainLength) {
   // Calculate the Z value for every X and Y in the frame
   for (var x = 0; x < terrainWidth; x++) {
     for (var y = 0; y < terrainLength; y++) {
-      var value = noise.perlin3(x/50, y/50, 0) + .1 * noise.perlin3(x/500, y/500, 0) + + .1 * noise.perlin3(x/200, y/200, 0);
+      var value = (noise.perlin3(x/500, y/500, 0) + 2 * noise.perlin3(x/100, y/100, 0))/3; // + + .1 * noise.perlin3(x/200, y/200, 0);
       value += .02 * Math.random();
       if (max < value) max = value;
       if (min > value) min = value;

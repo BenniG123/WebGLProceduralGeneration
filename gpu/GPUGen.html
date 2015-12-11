@@ -139,9 +139,7 @@
         void main() {
 
             // get a turbulent 3d noise using the normal, normal to high freq
-            //noise = 10.0 *  -.10 * turbulence( 0.5 * normal + r);
-            float b = scalar * pnoise( 0.05 * position + vec3( 2.0 * r), vec3( 100.0 ) );
-            //float displacement = - noise + b;
+            float b = scalar * pnoise( 0.018 * position + vec3(r), vec3( 1000.0 ) );
             
             // move the position along the normal and transform it
             vec3 newPosition = position + normal * b;
@@ -161,6 +159,8 @@
 
         }
         </script>
+		
+        <script src='../js/dat.gui.min.js'></script>
         <script src="../js/three.min.js"></script>
         <script src='../js/gpu_terrain.js'></script>
 		<script>window.onload = main</script>

@@ -1,20 +1,59 @@
-var container, 
-    renderer, 
-    scene, 
-    camera, 
-    mesh, 
-    start = Date.now(),
-    fov = 70;
-var ran = Math.random() * 65536;
-var minHeight = 0;
-var maxHeight = 50;
-var scalar = 50;
-var proceduralWidth = 100;
-var proceduralLength = 100;
+var heightMap;
+var container;
+var renderer;
+var scene;
+var camera;
+var geometry;
+var material;
+var plane;
+var fov = 70;
+var rotation_x = 0;
+var rotation_z = 0;
+var seedNumber = 0;
+
+var parameters = {scalar: 130, minHeight: 0, maxHeight: 400, proceduralWidth: 250, proceduralHeight: 250};
 
 function main() {
+    
+    seed();
+  
+    init();
+    animate();
+};
+
+function init() {
     // grab the container from the DOM
     container = document.getElementById( "container" );
+
+	//GUI Components
+    var gui = new dat.GUI({
+        height : 5 * 32 - 1
+    });
+
+    gui.add(parameters, 'minHeight').min(-1000).max(1000).step(50).onFinishChange(function(newValue) {
+      regenerate_terrain();
+    });
+    gui.add(parameters, 'maxHeight').min(-1000).max(1000).step(50).onFinishChange(function(newValue) {
+      regenerate_terrain();
+    });
+    gui.add(parameters, 'scalar').min(0).max(500).step(10).onFinishChange(function(newValue) {
+      regenerate_terrain();
+    });
+    gui.add(parameters, 'proceduralWidth').min(10).max(1000).step(10).onFinishChange(function(newValue) {
+      regenerate_terrain();
+    });    gui.add(parameters, 'proceduralHeight').min(10).max(1000).step(10).onFinishChange(function(newValue) {
+      regenerate_terrain();
+    });
+    
+    var reseed_button = {
+	    reseed: function() {
+        	seed();
+        	regenerate_terrain();
+		}
+	};
+
+	//var btn = new reseed_button();
+    gui.add(reseed_button,'reseed');
     
     // create a scene
     scene = new THREE.Scene();
@@ -25,72 +64,102 @@ function main() {
         fov, 
         window.innerWidth / window.innerHeight, 
         1, 
-        10000 );
-    camera.position.z = 100;
+        4000 );
+    camera.position.z = 600;
     camera.target = new THREE.Vector3( 0, 0, 0 );
-
     scene.add( camera );
 
+	regenerate_terrain();
+
+    // create the renderer and attach it to the DOM
+	renderer = new THREE.WebGLRenderer();
+	renderer.setPixelRatio( window.devicePixelRatio );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	container.appendChild( renderer.domElement );
+
+	window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener( "keypress", doKeyDown, false )
+    renderer.render( scene, camera );
+}
+
+function seed() {
+  // Get a full possibility of every seed - 2^16
+  seedNumber  = Math.floor((Math.random() * 65536));
+}
+
+function animate() {
+
+	requestAnimationFrame( animate );
+	plane.rotation.x = rotation_x;	
+	plane.rotation.z = rotation_z;
+
+	renderer.render( scene, camera );
+}
+
+function reloadPage(){
+  console.log("minHeight" + parameters.minHeight);
+};
+
+function regenerate_terrain() {
+
+    if (plane instanceof THREE.Mesh) {
+        scene.remove(plane);
+    }
+
+    geometry = new THREE.PlaneGeometry(parameters.proceduralWidth,parameters.proceduralHeight,parameters.proceduralWidth-1,parameters.proceduralHeight-1);
     // create a material for our plane -- 2^16 seeds
     material = new THREE.ShaderMaterial( {
         uniforms: {
                 r: { 
                     type: "f", 
-                    value: ran
+                    value: seedNumber
                 },
 				maxHeight: {
 					type: "f",
-					value: maxHeight
+					value: parameters.maxHeight
 				},
 				minHeight: {
 					type: "f",
-					value: minHeight
+					value: parameters.minHeight
 				},
 				scalar: {
 					type: "f",
-					value: scalar
+					value: parameters.scalar
 				},
             },
         vertexShader: document.getElementById( 'vertex_shader' ).textContent,
         fragmentShader: document.getElementById( 'fragment_shader' ).textContent
     } );
 
-    //material = new THREE.MeshNormalMaterial();
-    
-    var geometry = new THREE.PlaneGeometry( proceduralWidth, proceduralLength, proceduralWidth-1, proceduralLength-1);
+	plane = new THREE.Mesh(geometry, material);
 
-    // create a sphere and assign the material
-    mesh = new THREE.Mesh( 
-        geometry, 
-        material 
-    );
-    scene.add( mesh );
-    
-    mesh.rotation.x = -45;
-    mesh.rotation.z = 45;
-
-    //mesh.material = new THREE.MeshLambertMaterial();
-    //mesh.geometry.buffersNeedUpdate = true;
-    //mesh.geometry.uvsNeedUpdate = true;
-
-
-    // create the renderer and attach it to the DOM
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    
-    container.appendChild( renderer.domElement );
-
-    renderer.render( scene, camera );
-    var delta_time = Date.now() - start;
-    console.log("GPU: " + proceduralWidth + " x " + proceduralLength + " size heightmap in " + delta_time + " ms");
-
-    render();
-
+    scene.add(plane);
 }
 
-function render() {
+function doKeyDown(e) {
 
-    renderer.render( scene, camera );
-    requestAnimationFrame( render );
-    
+	if ( e.keyCode == 119 ) {
+		rotation_x -= .06;
+	}
+
+	if ( e.keyCode == 115 ) {		
+		rotation_x += .06;
+	}
+
+	if ( e.keyCode == 100 ) {		
+		rotation_z += .06;
+	}
+
+	if ( e.keyCode == 97 ) {		
+		rotation_z -= .06;
+	}
+}
+
+function onWindowResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
 }
