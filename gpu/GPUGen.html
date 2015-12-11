@@ -7,11 +7,21 @@
     </head>
     <body>
         <div id="container"></div>
-        <script id="compute_fragment_shader" type="x-shader/x-fragment">
-        #ifdef GL_ES
-        precision highp float;
-        #endif
-
+        <script id="fragment_shader" type="x-shader/x-fragment">
+        precision mediump float;
+        varying float vZ;
+        varying float vMaxHeight;
+        varying float vMinHeight;
+		varying float vScalar;
+         
+        void main(void) {
+			float red = (vZ - vScalar*.67 - vMinHeight)/vScalar;
+			float green = 0.6 * (vZ - vMinHeight)/(vScalar);
+			float blue = 0.5 -(vZ - vMinHeight)/(vScalar);
+            gl_FragColor = vec4( red, green, blue, 1 );
+        }
+        </script>
+        <script id="vertex_shader" type="x-shader/x-vertex">
         vec3 mod289(vec3 x)
         {
           return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -116,39 +126,40 @@
             return t;
         }
 
+        varying float vZ;
         //varying float noise;
         uniform float r;
         uniform float maxHeight;
         uniform float minHeight;
+		varying float vMaxHeight;
+		varying float vMinHeight;
+		varying float vScalar;
 		uniform float scalar;
-        varying vec3 vPosition;
-        uniform sampler2D heightMap;  // heightmap
 
         void main() {
 
             // get a turbulent 3d noise using the normal, normal to high freq
-            float displacement = scalar * pnoise( 0.05 * vPosition + vec3( 2.0 * r), vec3( 100.0 ) );
+            //noise = 10.0 *  -.10 * turbulence( 0.5 * normal + r);
+            float b = scalar * pnoise( 0.05 * position + vec3( 2.0 * r), vec3( 100.0 ) );
+            //float displacement = - noise + b;
             
-            if (displacement > maxHeight) {
-                displacement = maxHeight;
-            } else if (displacement < minHeight) {
-                displacement = minHeight;
+            // move the position along the normal and transform it
+            vec3 newPosition = position + normal * b;
+
+            if (newPosition.z > maxHeight) {
+                newPosition.z = maxHeight;
+            } else if (newPosition.z < minHeight) {
+                newPosition.z = minHeight;
             }
 
-            gl_FragData[0] = vec4(displacement, 1.0);
+            vZ = newPosition.z;
+			vMaxHeight = maxHeight;
+			vMinHeight = minHeight;
+			vScalar = scalar;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
         }
-        </script>
-        <script id="compute_vertex_shader" type="x-shader/x-vertex">
-        #ifdef GL_ES
-        precision highp float;
-        #endif
-
-        //attribute vec3 aPosition;
-        varying vec3 vPosition;
-
-        void main() {
-          gl_Position = vec4(1.0, 1.0, 1.0, 1.0);
-          vPosition = vec3(1.0, 1.0, 1.0);
         </script>
         <script src="../js/three.min.js"></script>
         <script src='../js/gpu_terrain.js'></script>

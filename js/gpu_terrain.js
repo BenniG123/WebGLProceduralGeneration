@@ -25,12 +25,11 @@ function main() {
         fov, 
         window.innerWidth / window.innerHeight, 
         1, 
-        4000 );
+        10000 );
     camera.position.z = 100;
     camera.target = new THREE.Vector3( 0, 0, 0 );
 
     scene.add( camera );
-    var heightMap = new Float32Array(proceduralLength*proceduralWidth);
 
     // create a material for our plane -- 2^16 seeds
     material = new THREE.ShaderMaterial( {
@@ -51,13 +50,9 @@ function main() {
 					type: "f",
 					value: scalar
 				},
-                heightMap: {
-                    type: "t",
-                    value: heightMap
-                }
             },
-        vertexShader: document.getElementById( 'compute_vertex_shader' ).textContent,
-        fragmentShader: document.getElementById( 'compute_fragment_shader' ).textContent
+        vertexShader: document.getElementById( 'vertex_shader' ).textContent,
+        fragmentShader: document.getElementById( 'fragment_shader' ).textContent
     } );
 
     //material = new THREE.MeshNormalMaterial();
