@@ -176,7 +176,7 @@ function generateHeightMap(terrainWidth, terrainLength) {
   // Calculate the Z value for every X and Y in the frame
   for (var x = 0; x < terrainWidth; x++) {
     for (var y = 0; y < terrainLength; y++) {
-      var value = (noise.perlin3(x/500, y/500, 0) + 2 * noise.perlin3(x/100, y/100, 0))/3; // + + .1 * noise.perlin3(x/200, y/200, 0);
+      var value = (noise.perlin3(x/400, y/400, 0) + noise.perlin3(x/50, y/50, 0));///2; // + + .1 * noise.perlin3(x/200, y/200, 0);
       value += .02 * Math.random();
       if (max < value) max = value;
       if (min > value) min = value;
