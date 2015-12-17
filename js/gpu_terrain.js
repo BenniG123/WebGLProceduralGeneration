@@ -106,6 +106,8 @@ function regenerate_terrain() {
         scene.remove(plane);
     }
 
+	var startTime = Date.now();
+
     geometry = new THREE.PlaneGeometry(parameters.proceduralWidth,parameters.proceduralHeight,parameters.proceduralWidth-1,parameters.proceduralHeight-1);
     // create a material for our plane -- 2^16 seeds
     material = new THREE.ShaderMaterial( {
@@ -134,6 +136,8 @@ function regenerate_terrain() {
 	plane = new THREE.Mesh(geometry, material);
 
     scene.add(plane);
+	var deltaTime = Date.now() - startTime;
+	console.log(parameters.proceduralHeight + " x " + parameters.proceduralWidth + ": " + deltaTime + " ms");
 }
 
 function doKeyDown(e) {
